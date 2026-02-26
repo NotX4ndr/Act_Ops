@@ -1,4 +1,4 @@
-Attribute VB_Name = "Módulo3"
+Attribute VB_Name = "MÃ³dulo3"
 Option Explicit
 
 #If VBA7 Then
@@ -54,7 +54,7 @@ Public Sub ActualizarStatus_OPs()
     End If
 
     If Not EnsureLogin(gSess) Then
-        MsgBox "No pude iniciar sesión en B2E. Revisa credenciales o acceso.", vbCritical
+        MsgBox "No pude iniciar sesiÃ³n en B2E. Revisa credenciales o acceso.", vbCritical
         Debug.Print Format$(Now, "dd/mm/yyyy hh:nn:ss") & " | Login fallido."
         Exit Sub
     End If
@@ -118,6 +118,10 @@ Public Sub ActualizarStatus_OPs()
             If Len(st) = 0 Then
                 LogLine "Fila " & r & " | OP=" & op & " | STATUS=VACIO"
                 ws.cells(r, STATUS_COL).ClearContents
+                ws.cells(r, CRUISE_COL).ClearContents
+                ws.cells(r, BKGDATE_COL).ClearContents
+                ws.cells(r, OPTDATE_COL).ClearContents
+                ws.cells(r, PRICE_COL).ClearContents
             Else
                 ws.cells(r, STATUS_COL).Value = st
                 ws.cells(r, CRUISE_COL).Value = cruiseCode
@@ -156,7 +160,12 @@ Public Sub ActualizarStatus_OPs()
                 Else
                     ws.cells(r, PRICE_COL).ClearContents
                 End If
-                ws.cells(r, PRICE_COL).NumberFormat = "#,##0.00 [$€-es-ES]"
+            ws.cells(r, 1).ClearContents
+            ws.cells(r, CRUISE_COL).ClearContents
+            ws.cells(r, BKGDATE_COL).ClearContents
+            ws.cells(r, OPTDATE_COL).ClearContents
+            ws.cells(r, PRICE_COL).ClearContents
+                ws.cells(r, PRICE_COL).NumberFormat = "#,##0.00 [$â‚¬-es-ES]"
 
                 If (InStr(1, UCase$(st), "CXL", vbBinaryCompare) > 0 Or InStr(1, UCase$(st), "CX", vbBinaryCompare) > 0) Then
                     If Len(Trim$(cancReason)) > 0 Then
@@ -185,7 +194,7 @@ Public Sub ActualizarStatus_OPs()
     ProgressClose
 
     Debug.Print Format$(Now, "dd/mm/yyyy hh:nn:ss") & " | ---- RUN END ----"
-    MsgBox "Listo. Status, Cruise, Fecha y Precio actualizados. Sesión cerrada.", vbInformation
+    MsgBox "Listo. Status, Cruise, Fecha y Precio actualizados. SesiÃ³n cerrada.", vbInformation
     Exit Sub
 
 EH:
@@ -220,7 +229,7 @@ Public Sub B2E_ClearSession()
 
     On Error GoTo 0
     Set gSess = Nothing
-    MsgBox "Sesión limpiada y cerrada.", vbInformation
+    MsgBox "SesiÃ³n limpiada y cerrada.", vbInformation
 End Sub
 
 Private Function EnsureLogin(ByVal sess As Object) As Boolean
@@ -349,7 +358,7 @@ CleanOnly:
     sess("wsid") = ""
     sess("logged") = False
 
-    LogLine "Sesión cerrada correctamente."
+    LogLine "SesiÃ³n cerrada correctamente."
 
 End Sub
 
@@ -393,7 +402,7 @@ Private Function GetStatusByOP(ByVal op As String, ByVal sess As Object) As Stri
 
     If Len(resp) = 0 Then Exit Function
 
-    ' Validación adicional (evita contexto reciclado / primer resultado)
+    ' ValidaciÃ³n adicional (evita contexto reciclado / primer resultado)
     If Not BookingHtmlLooksLikeRequestedOP(resp, op) Then
         LogLine "WARN | OP=" & op & " | booking HTML no coincide con OP solicitado"
     End If
@@ -487,7 +496,7 @@ Private Function EnsureExactBookingPageFromSearch(ByVal op As String, ByVal sear
         End If
     End If
 
-    ' Último fallback: devolver lo recibido
+    ' Ãšltimo fallback: devolver lo recibido
     EnsureExactBookingPageFromSearch = html
 
 End Function
@@ -496,7 +505,7 @@ Private Function OpenExactSearchResultRow(ByVal op As String, ByVal html As Stri
     Dim rowHtml As String
     rowHtml = FindSearchResultRowByOP(html, op)
     If Len(rowHtml) = 0 Then
-        LogLine "SEARCH | OP=" & op & " | no encontré fila exacta en grid"
+        LogLine "SEARCH | OP=" & op & " | no encontrÃ© fila exacta en grid"
         Exit Function
     End If
 
@@ -647,7 +656,7 @@ Private Function BookingHtmlLooksLikeRequestedOP(ByVal html As String, ByVal op 
 
     If Len(opU) = 0 Then Exit Function
 
-    ' Búsqueda simple pero útil para evitar contexto del booking previo
+    ' BÃºsqueda simple pero Ãºtil para evitar contexto del booking previo
     If InStr(1, t, UCase$(">" & op & "<"), vbBinaryCompare) > 0 Then
         BookingHtmlLooksLikeRequestedOP = True
         Exit Function
@@ -794,19 +803,19 @@ Private Function GetHistoryOptToBkdUsersFromBooking(ByVal op As String, ByVal ht
 
     bookingWsid = ExtractBookingWsid(html)
 
-    ' 1) Intentar abrir el diálogo de History desde el booking actual
+    ' 1) Intentar abrir el diÃ¡logo de History desde el booking actual
     dialogHtml = OpenHistoryDialogFromBooking(html, sess)
     If Len(dialogHtml) > 0 Then
         historyUrl = ExtractHistoryUrl(dialogHtml)
     End If
 
-    ' 2) Fallback: URL directa de HistorySelection por Wsid (contexto de sesión)
+    ' 2) Fallback: URL directa de HistorySelection por Wsid (contexto de sesiÃ³n)
     If Len(historyUrl) = 0 Then
         If Len(bookingWsid) = 0 Then Exit Function
         historyUrl = "WebFrmHistorySelection.aspx?Wsid=" & UrlEnc(bookingWsid)
     End If
 
-    ' 3) Último recurso: intentar extraerla del html original
+    ' 3) Ãšltimo recurso: intentar extraerla del html original
     If Len(historyUrl) = 0 Then
         historyUrl = ExtractHistoryUrl(html)
     End If
@@ -820,7 +829,7 @@ Private Function GetHistoryOptToBkdUsersFromBooking(ByVal op As String, ByVal ht
 
     For attempt = 1 To MAX_TRIES
 
-        ' ---- GET #1 + GET #2 (F5 lógico sobre HistorySelection) ----
+        ' ---- GET #1 + GET #2 (F5 lÃ³gico sobre HistorySelection) ----
         histHtml = HttpGet(AddNoCacheToUrl(historyUrl), sess)
         If Len(histHtml) = 0 Then GoTo NextAttempt
         If Not HistoryHtmlMatchesCurrentBooking(histHtml, bookingWsid, op) Then
@@ -1330,7 +1339,7 @@ Private Function ExtractHistoryUrl(ByVal html As String) As String
 
     Dim u As String
 
-    ' Caso actual: iframe del diálogo ya renderizado
+    ' Caso actual: iframe del diÃ¡logo ya renderizado
     u = Re1(html, "id=""dialog-body""[^>]*src=""([^""]*WebFrmHistorySelection\.aspx[^""]*)""")
     If Len(u) > 0 Then
         ExtractHistoryUrl = HtmlDecode(u)
@@ -2149,9 +2158,9 @@ Private Function AskStartRow(ByVal minRow As Long, ByVal maxRow As Long) As Long
 
     Dim s As String, v As Long
 
-    s = InputBox("¿Desde qué fila quieres empezar?" & vbCrLf & _
-                 "Mín: " & minRow & "  |  Máx: " & maxRow, _
-                 "Inicio de evaluación", CStr(minRow))
+    s = InputBox("Â¿Desde quÃ© fila quieres empezar?" & vbCrLf & _
+                 "MÃ­n: " & minRow & "  |  MÃ¡x: " & maxRow, _
+                 "Inicio de evaluaciÃ³n", CStr(minRow))
 
     If Len(Trim$(s)) = 0 Then
         AskStartRow = 0
@@ -2159,7 +2168,7 @@ Private Function AskStartRow(ByVal minRow As Long, ByVal maxRow As Long) As Long
     End If
 
     If Not IsNumeric(s) Then
-        MsgBox "Debes ingresar un número de fila.", vbExclamation
+        MsgBox "Debes ingresar un nÃºmero de fila.", vbExclamation
         AskStartRow = 0
         Exit Function
     End If
@@ -2199,7 +2208,7 @@ Private Function NormalizarNumero(ByVal s As String) As String
     Dim t As String
     t = Trim$(s)
 
-    t = Replace$(t, "€", "")
+    t = Replace$(t, "â‚¬", "")
     t = Replace$(t, "EUR", "")
     t = Replace$(t, vbCr, "")
     t = Replace$(t, vbLf, "")
